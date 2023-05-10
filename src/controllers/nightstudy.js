@@ -2,7 +2,7 @@ const { HttpException } = require("../util/exception");
 const navermap = require("../util/navermap");
 
 const find = async (req, res, next) => {
-  let { coord, boundary, count } = req.body;
+  let { coord, boundary, count, only24 } = req.body;
   if (typeof count === "undefined") count = 100;
   if (count > 100 || count <= 0) {
     return next(
@@ -17,6 +17,11 @@ const find = async (req, res, next) => {
     boundary,
     displayCount: count,
   });
+
+  if (only24) {
+    result = result.filter((e) => e.businessStatus?.status?.code === 8);
+  }
+
   return res.json(result);
 };
 

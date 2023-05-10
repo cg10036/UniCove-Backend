@@ -69,7 +69,10 @@
                     boundary: [
                         { lat: swLatLng.getLat(), lng: swLatLng.getLng() },
                         { lat: neLatLng.getLat(), lng: neLatLng.getLng() }
-                    ]
+                    ],
+
+                    // 24시간만 표시
+                    only24: false
                 })
             })
             let json = await resp.json();

@@ -14,8 +14,7 @@
     </div>
     <div id="map" style="width:100%;height:350px;"></div>
 
-    <script type="text/javascript"
-        src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=APPKEY수정필수"></script>
+    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=APPKEY수정필수"></script>
     <script>
         const starMarkerSrc = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png";
         const starMarker = new kakao.maps.MarkerImage(starMarkerSrc, new kakao.maps.Size(24 * 2, 35 * 2));
@@ -84,7 +83,7 @@
                 if (e.businessStatus && e.businessStatus.status) {
                     let status = e.businessStatus.status
                     businessInfo = status.detailInfo || status.description || businessInfo;
-                    if (status.code === 8) {
+                    if (status.code === 8) { // 24시간일때 별모양 마커
                         config.image = starMarker
                     }
                 }
@@ -92,15 +91,15 @@
                 marker.setMap(map);
 
                 let iwContent = `<div style="padding:5px;">${[e.display, e.address, businessInfo].join("<br/>")}</div>`,
-                    iwRemoveable = true; 
-                
+                    iwRemoveable = true;
+
                 let infowindow = new kakao.maps.InfoWindow({
-                    content : iwContent,
-                    removable : iwRemoveable
+                    content: iwContent,
+                    removable: iwRemoveable
                 });
-                kakao.maps.event.addListener(marker, 'click', function() {
+                kakao.maps.event.addListener(marker, 'click', function () {
                     // 마커 위에 인포윈도우를 표시합니다
-                    infowindow.open(map, marker);  
+                    infowindow.open(map, marker);
                 });
             })
             console.log(json);

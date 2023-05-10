@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>지도 정보 얻어오기</title>
+
+</head>
+
+<body>
+    <div>
+        JWT: <input id="jwt" type="text" placeholder="JWT"
+            value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjgzNjkzODg4LCJleHAiOjE2ODYyODU4ODh9.0bh5H5-rZwIJTB2JYt5v_iRl_1C9wksXQ9yig6bKiqE" />
+    </div>
+    <div id="map" style="width:100%;height:350px;"></div>
+
+    <script type="text/javascript"
+        src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=APPKEY수정필수"></script>
+    <script>
+        const starMarkerSrc = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png";
+        const starMarker = new kakao.maps.MarkerImage(starMarkerSrc, new kakao.maps.Size(24 * 2, 35 * 2));
+
+        let mapContainer = document.getElementById('map'), // 지도를 표시할 div 
+            mapOption = {
+                center: new kakao.maps.LatLng(37.6108107286848, 126.996902418866), // 지도의 중심좌표
+                level: 4 // 지도의 확대 레벨
+            };
+
+        let map = new kakao.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
+
+        // 일반 지도와 스카이뷰로 지도 타입을 전환할 수 있는 지도타입 컨트롤을 생성합니다
+        let mapTypeControl = new kakao.maps.MapTypeControl();
+
+        // 지도 타입 컨트롤을 지도에 표시합니다
+        map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT);
+
+        const test = async () => {
+            if (!window.jwt) {
+                window.jwt = document.querySelector("#jwt");
+            }
+
+            // 지도의 현재 중심좌표를 얻어옵니다 
+            let center = map.getCenter();
+
+            // 지도의 현재 영역을 얻어옵니다 
+            let bounds = map.getBounds();
+
+            // 영역의 남서쪽 좌표를 얻어옵니다 
+            let swLatLng = bounds.getSouthWest();
+
+            // 영역의 북동쪽 좌표를 얻어옵니다 
+            let neLatLng = bounds.getNorthEast();
+
+
+            // API 요청
+            let resp = await fetch("http://localhost:8080/api/nightstudy", {
+                method: "POST",
+                headers: {
+                    "content-type": "application/json",
+                    authorization: `Bearer ${jwt.value}`
+                },
+                body: JSON.stringify({
+                    // 좌표
+                    coord: {
+                        lat: center.getLat(),
+                        lng: center.getLng()
+                    },
+
+                    // 현재 표시되는 지도 박스 좌표
+                    boundary: [
+                        { lat: swLatLng.getLat(), lng: swLatLng.getLng() },
+                        { lat: neLatLng.getLat(), lng: neLatLng.getLng() }
+                    ]
+                })
+            })
+            let json = await resp.json();
+
+            json.forEach(e => {
+                let config = {
+                    position: new kakao.maps.LatLng(e.y, e.x),
+                    clickable: true
+                }
+                let businessInfo = "정보 없음";
+                if (e.businessStatus && e.businessStatus.status) {
+                    let status = e.businessStatus.status
+                    businessInfo = status.detailInfo || status.description || businessInfo;
+                    if (status.code === 8) {
+                        config.image = starMarker
+                    }
+                }
+                let marker = new kakao.maps.Marker(config)
+                marker.setMap(map);
+
+                let iwContent = `<div style="padding:5px;">${[e.display, e.address, businessInfo].join("<br/>")}</div>`,
+                    iwRemoveable = true; 
+                
+                let infowindow = new kakao.maps.InfoWindow({
+                    content : iwContent,
+                    removable : iwRemoveable
+                });
+                kakao.maps.event.addListener(marker, 'click', function() {
+                    // 마커 위에 인포윈도우를 표시합니다
+                    infowindow.open(map, marker);  
+                });
+            })
+            console.log(json);
+        }
+    </script>
+</body>
+
+</html>

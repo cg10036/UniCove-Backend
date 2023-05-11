@@ -16,3 +16,17 @@ CREATE TABLE `user` (
     `password` VARCHAR(100),
     UNIQUE KEY(`username`)
 );
+
+DROP TABLE IF EXISTS `goodshop`;
+
+CREATE TABLE `goodshop` (
+    `id` INT PRIMARY KEY,
+    `name` VARCHAR(50) NOT NULL,
+    `industry_code` INT NOT NULL,
+    `address` VARCHAR(300) NOT NULL,
+    `phone` VARCHAR(20),
+    `info` VARCHAR(1000) NULL,
+    `hash` VARCHAR(70) NOT NULL,
+    `lat` DECIMAL(15, 10),
+    `lng` DECIMAL(15, 10)
+);

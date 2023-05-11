@@ -1,10 +1,20 @@
 const db = require("../db");
 
 const find = async (req, res, next) => {
-  let { boundary } = req.body;
+  let { coord, boundary, count } = req.body;
+  if (typeof count === "undefined") count = 100;
+  if (count > 100 || count <= 0) {
+    return next(
+      new HttpException(400, {
+        code: "COUNT_RANGE_ERROR",
+        detail: "Count range must be 1~100",
+      })
+    );
+  }
+
   let lats = [],
     lngs = [];
-  boundary.forEach((e) => {
+  boundary?.forEach((e) => {
     lats.push(e.lat);
     lngs.push(e.lng);
   });
@@ -12,8 +22,14 @@ const find = async (req, res, next) => {
   lngs = lngs.sort();
 
   let result = await db.query(
-    "SELECT `id`, `name`, `industry_code` AS `industryCode`, `address`, `phone`, `info`, `lat`, `lng` FROM `goodshop` WHERE `lat` IS NOT NULL AND `lat`>=? AND `lat`<=? AND `lng`>=? AND `lng`<=?",
-    [...lats, ...lngs]
+    "SELECT `id`, `name`, `industry_code` AS `industryCode`, `address`, `phone`, `info`, `lat`, `lng` FROM `goodshop` " +
+      "WHERE (`lat` IS NOT NULL) " +
+      (boundary
+        ? "AND (`lat` BETWEEN ? AND ?) AND (`lng` BETWEEN ? AND ?) "
+        : "") +
+      "ORDER BY (POW((`lat` - ?) * 100000, 2) + POW((`lng` - ?) * 100000, 2)) ASC " +
+      "LIMIT ?",
+    [...lats, ...lngs, coord.lat, coord.lng, count]
   );
 
   return res.json(result);

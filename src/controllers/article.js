@@ -14,6 +14,16 @@ const comment = async (req, res, next) => {
   return res.send("comment success!");
 };
 
+const comment_del = async (req, res, next) => {
+  let { commentid } = req.body;
+  let ret = await db.query("DELETE FROM `comment` WHERE `id` = ?", [commentid]);
+
+  if (ret.affectedRows == 0) {
+    return next(new HttpException(400, { code: "DELETE_FAILED" }));
+  }
+  return res.send("delete comment success!");
+};
+
 const like = async (req, res, next) => {
   let { boardid } = req.body;
   try {
@@ -55,11 +65,28 @@ const read = async (req, res, next) => {
 
   let [like] = await db.query(
     "SELECT COUNT(*) as cnt_like FROM `like` WHERE `boardid` = ?",
-    [Number(elem.id)]
+    [boardid]
   );
 
   content = { ...content, cnt_comment: comment.length, ...like };
   return res.send({ content, comment });
 };
 
-module.exports = { comment, like, unlike, read };
+const del = async (req, res, next) => {
+  let { boardid } = req.body;
+  let [content] = await db.query(
+    "SELECT `userid` FROM `board` WHERE `id` = ?",
+    [boardid]
+  );
+
+  if (content.userid != req.id) {
+    return next(new HttpException(400, { code: "INVAILD_ID" }));
+  }
+
+  await db.query("DELETE FROM `board` WHERE `id` = ?", [boardid]);
+  await db.query("DELETE FROM `comment` WHERE `boardid` = ?", [boardid]);
+  await db.query("DELETE FROM `like` WHERE `boardid` = ?", [boardid]);
+  return res.send("delete article success!");
+};
+
+module.exports = { comment, comment_del, like, unlike, read, del };

@@ -16,20 +16,20 @@ const write = async (req, res, next) => {
 const list = async (req, res, next) => {
   let { placeid, page } = req.body; // page : 0-based idx
   let cnt = 5;
-  let board = await db.query(
+  let review = await db.query(
     "SELECT `id`, `userid`, `score`, `content`, `created_time` FROM `review` WHERE `placeid` = ? ORDER BY `id` desc limit ?, ?",
     [placeid, Number(page) * cnt, Number(cnt)]
   );
-  let ret = await Promise.all(
-    board.map(async (elem) => {
-      let [comment] = await db.query(
-        "SELECT COUNT(*) as cnt_comment FROM `comment` WHERE `boardid` = ?",
-        [Number(elem.id)]
-      );
-      return { ...elem, ...comment };
-    })
-  );
-  return res.send(board);
+  return res.send(review);
 };
 
-module.exports = { write, list };
+const avg = async (req, res, next) => {
+  let { placeid } = req.body;
+  let [ret] = await db.query(
+    "SELECT ROUND(AVG(`score`), 1) as `avg` FROM `review` WHERE `placeid` = ?",
+    [placeid]
+  );
+  return res.send(ret);
+};
+
+module.exports = { write, list, avg };

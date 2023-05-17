@@ -38,7 +38,6 @@ CREATE TABLE `board` (
     `userid` INT,
     `title` VARCHAR(100),
     `content` VARCHAR(1000),
-    `cnt_like` INT,
     `created_time` DATETIME DEFAULT now()
 );
 
@@ -61,4 +60,13 @@ CREATE TABLE `review` (
     `score` FLOAT,
     `content` VARCHAR(1000),
     `created_time` DATETIME DEFAULT now()
+);
+
+DROP TABLE IF EXISTS `like`;
+
+CREATE TABLE `like` (
+    `id` INT PRIMARY KEY AUTO_INCREMENT,
+    `boardid` INT NOT NULL,
+    `userid` INT NOT NULL,
+    UNIQUE (`boardid`, `userid`)
 );

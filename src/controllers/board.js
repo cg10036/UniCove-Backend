@@ -4,7 +4,7 @@ const list = async (req, res, next) => {
   let { page } = req.body; // page : 0-based idx
   let cnt = 5;
   let board = await db.query(
-    "SELECT `id`, `title`, `content`, `cnt_like` FROM `board` ORDER BY `id` desc limit ?, ?",
+    "SELECT `id`, `title`, `content` FROM `board` ORDER BY `id` desc limit ?, ?",
     [Number(page) * cnt, Number(cnt)]
   );
   let ret = await Promise.all(
@@ -13,7 +13,11 @@ const list = async (req, res, next) => {
         "SELECT COUNT(*) as cnt_comment FROM `comment` WHERE `boardid` = ?",
         [Number(elem.id)]
       );
-      return { ...elem, ...comment };
+      let [like] = await db.query(
+        "SELECT COUNT(*) as cnt_like FROM `like` WHERE `boardid` = ?",
+        [Number(elem.id)]
+      );
+      return { ...elem, ...comment, ...like };
     })
   );
   return res.send(ret);
@@ -23,7 +27,7 @@ const search = async (req, res, next) => {
   let { query, page } = req.body; // page : 0-based idx
   let cnt = 5;
   let board = await db.query(
-    "SELECT `id`, `title`, `content`, `cnt_like` FROM `board` WHERE `title` LIKE ? ORDER BY `id` desc limit ?, ?",
+    "SELECT `id`, `title`, `content` FROM `board` WHERE `title` LIKE ? ORDER BY `id` desc limit ?, ?",
     ["%" + query + "%", Number(page) * cnt, Number(cnt)]
   );
   let ret = await Promise.all(
@@ -32,7 +36,11 @@ const search = async (req, res, next) => {
         "SELECT COUNT(*) as cnt_comment FROM `comment` WHERE `boardid` = ?",
         [Number(elem.id)]
       );
-      return { ...elem, ...comment };
+      let [like] = await db.query(
+        "SELECT COUNT(*) as cnt_like FROM `like` WHERE `boardid` = ?",
+        [Number(elem.id)]
+      );
+      return { ...elem, ...comment, ...like };
     })
   );
   return res.send(ret);
@@ -43,7 +51,7 @@ const write = async (req, res, next) => {
 
   try {
     await db.query(
-      "INSERT INTO `board` (`userid`, `title`, `content`, `cnt_like`) VALUES (?, ?, ?, 0)",
+      "INSERT INTO `board` (`userid`, `title`, `content`) VALUES (?, ?, ?)",
       [req.id, title, content]
     );
   } catch (err) {

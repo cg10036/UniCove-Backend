@@ -55,5 +55,10 @@ CREATE TABLE `comment` (
 DROP TABLE IF EXISTS `review`;
 
 CREATE TABLE `review` (
-    
+    `id` INT PRIMARY KEY AUTO_INCREMENT,
+    `userid` INT,
+    `placeid` INT,
+    `score` FLOAT,
+    `content` VARCHAR(1000),
+    `created_time` DATETIME DEFAULT now()
 );

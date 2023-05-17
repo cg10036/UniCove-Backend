@@ -51,3 +51,9 @@ CREATE TABLE `comment` (
     `content` VARCHAR(1000),
     `created_time` DATETIME DEFAULT now()
 );
+
+DROP TABLE IF EXISTS `review`;
+
+CREATE TABLE `review` (
+    
+);

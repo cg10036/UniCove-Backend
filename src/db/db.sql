@@ -30,3 +30,43 @@ CREATE TABLE `goodshop` (
     `lat` DECIMAL(15, 10),
     `lng` DECIMAL(15, 10)
 );
+
+DROP TABLE IF EXISTS `board`;
+
+CREATE TABLE `board` (
+    `id` INT PRIMARY KEY AUTO_INCREMENT,
+    `userid` INT,
+    `title` VARCHAR(100),
+    `content` VARCHAR(1000),
+    `created_time` DATETIME DEFAULT now()
+);
+
+DROP TABLE IF EXISTS `comment`;
+
+CREATE TABLE `comment` (
+    `id` INT PRIMARY KEY AUTO_INCREMENT,
+    `userid` INT,
+    `boardid` INT,
+    `content` VARCHAR(1000),
+    `created_time` DATETIME DEFAULT now()
+);
+
+DROP TABLE IF EXISTS `review`;
+
+CREATE TABLE `review` (
+    `id` INT PRIMARY KEY AUTO_INCREMENT,
+    `userid` INT,
+    `placeid` INT,
+    `score` FLOAT,
+    `content` VARCHAR(1000),
+    `created_time` DATETIME DEFAULT now()
+);
+
+DROP TABLE IF EXISTS `like`;
+
+CREATE TABLE `like` (
+    `id` INT PRIMARY KEY AUTO_INCREMENT,
+    `boardid` INT NOT NULL,
+    `userid` INT NOT NULL,
+    UNIQUE (`boardid`, `userid`)
+);

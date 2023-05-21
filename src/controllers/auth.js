@@ -18,18 +18,11 @@ const login = async (req, res, next) => {
 };
 
 const register = async (req, res, next) => {
-  let { name, nickname, phone, address, username, password } = req.body;
+  let { name, phone, address, username, password } = req.body;
   try {
     await db.query(
-      "INSERT INTO `user` (`name`, `nickname`, `phone`, `address`, `username`, `password`) VALUES (?, ?, ?, ?, ?, ?)",
-      [
-        name,
-        nickname,
-        phone,
-        address,
-        username,
-        await bcrypt.hash(password, 10),
-      ]
+      "INSERT INTO `user` (`name`, `phone`, `address`, `username`, `password`) VALUES (?, ?, ?, ?, ?)",
+      [name, phone, address, username, await bcrypt.hash(password, 10)]
     );
   } catch (err) {
     if (err.code === "ER_DUP_ENTRY") {
@@ -47,7 +40,7 @@ const register = async (req, res, next) => {
 };
 
 const changeDB = async (req, res, next) => {
-  let allowedVar = ["name", "nickname", "username", "address"];
+  let allowedVar = ["name", "username", "address", "profile", "phone"];
   let { varient, new_data } = req.body;
 
   if (!allowedVar.includes(varient)) {
@@ -85,4 +78,13 @@ const changePW = async (req, res, next) => {
   return res.send("changePW success!");
 };
 
-module.exports = { login, register, changeDB, changePW };
+const getUser = async (req, res, next) => {
+  let { queryid } = req.body;
+  let [user] = await db.query(
+    "SELECT `username`, `profile` FROM `user` WHERE `id`=?",
+    [queryid]
+  );
+  return res.send(user);
+};
+
+module.exports = { login, register, changeDB, changePW, getUser };

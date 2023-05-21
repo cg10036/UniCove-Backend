@@ -9,11 +9,11 @@ DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
     `id` INT PRIMARY KEY AUTO_INCREMENT,
     `name` VARCHAR(20),
-    `nickname` VARCHAR(20),
     `phone` VARCHAR(20),
     `address` VARCHAR(100),
     `username` VARCHAR(20),
     `password` VARCHAR(100),
+    `profile` LONGTEXT,
     UNIQUE KEY(`username`)
 );
 

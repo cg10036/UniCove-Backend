@@ -3,8 +3,8 @@ const router = express.Router();
 
 const boardController = require("../controllers/board");
 
-router.post("/list", boardController.list);
+router.get("/list", boardController.list);
 router.post("/write", boardController.write);
-router.post("/search", boardController.search);
+router.get("/search", boardController.search);
 
 module.exports = router;

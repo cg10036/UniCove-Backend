@@ -70,3 +70,58 @@ CREATE TABLE `like` (
     `userid` INT NOT NULL,
     UNIQUE (`boardid`, `userid`)
 );
+
+DROP TABLE IF EXISTS `nightstudy`;
+
+CREATE TABLE `nightstudy` (
+    `id` BIGINT PRIMARY KEY,
+    `name` VARCHAR(50) NOT NULL,
+    `address` VARCHAR(300) NOT NULL,
+    `phone` VARCHAR(20),
+    `lat` DECIMAL(15, 10),
+    `lng` DECIMAL(15, 10),
+    `is24` TINYINT NOT NULL,
+    `info` VARCHAR(1000)
+);
+
+DROP TABLE IF EXISTS `goodshop_review`;
+
+CREATE TABLE `goodshop_review` (
+    `id` INT PRIMARY KEY AUTO_INCREMENT,
+    `goodshop_id` INT NOT NULL,
+    `user_id` INT NOT NULL,
+    `score` INT NOT NULL,
+    `created_time` DATETIME NOT NULL DEFAULT NOW(),
+    `content` TEXT NOT NULL,
+    UNIQUE (`goodshop_id`, `user_id`)
+);
+
+DROP TABLE IF EXISTS `nightstudy_review`;
+
+CREATE TABLE `nightstudy_review` (
+    `id` INT PRIMARY KEY AUTO_INCREMENT,
+    `nightstudy_id` INT NOT NULL,
+    `user_id` INT NOT NULL,
+    `score` INT NOT NULL,
+    `created_time` DATETIME NOT NULL DEFAULT NOW(),
+    `content` TEXT NOT NULL,
+    UNIQUE (`nightstudy_id`, `user_id`)
+);
+
+DROP TABLE IF EXISTS `goodshop_like`;
+
+CREATE TABLE `goodshop_like` (
+    `id` INT PRIMARY KEY AUTO_INCREMENT,
+    `goodshop_id` INT NOT NULL,
+    `user_id` INT NOT NULL,
+    UNIQUE (`goodshop_id`, `user_id`)
+);
+
+DROP TABLE IF EXISTS `nightstudy_like`;
+
+CREATE TABLE `nightstudy_like` (
+    `id` INT PRIMARY KEY AUTO_INCREMENT,
+    `nightstudy_id` INT NOT NULL,
+    `user_id` INT NOT NULL,
+    UNIQUE (`nightstudy_id`, `user_id`)
+);

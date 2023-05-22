@@ -1,4 +1,5 @@
 const db = require("../db");
+const { HttpException } = require("../util/exception");
 
 const find = async (req, res, next) => {
   let { coord, boundary, count } = req.body;
@@ -22,7 +23,7 @@ const find = async (req, res, next) => {
   lngs = lngs.sort();
 
   let result = await db.query(
-    "SELECT `id`, `name`, `industry_code` AS `industryCode`, `address`, `phone`, `info`, `lat`, `lng` FROM `goodshop` " +
+    "SELECT `id`, `name`, `address`, `phone`, `info`, `lat`, `lng` FROM `goodshop` " +
       "WHERE (`lat` IS NOT NULL) " +
       (boundary
         ? "AND (`lat` BETWEEN ? AND ?) AND (`lng` BETWEEN ? AND ?) "
@@ -35,6 +36,57 @@ const find = async (req, res, next) => {
   return res.json(result);
 };
 
+const getLike = async (req, res, next) => {
+  let ret = await db.query(
+    "SELECT `goodshop_id` AS `id` FROM `goodshop_like` WHERE `user_id`=?",
+    [req.id]
+  );
+  return res.json(
+    (
+      await Promise.all(
+        ret.map(async ({ id }) => {
+          let ret = await db.query(
+            "SELECT `id`, `name`, `address`, `phone`, `lat`, `lng` FROM goodshop WHERE id=?",
+            [id]
+          );
+          return ret[0];
+        })
+      )
+    ).filter((e) => e)
+  );
+};
+
+const like = async (req, res, next) => {
+  let { id } = req.body;
+  try {
+    await db.query(
+      "INSERT INTO `goodshop_like` (`goodshop_id`, `user_id`) values (?, ?)",
+      [id, req.id]
+    );
+  } catch (err) {
+    if (err.code === "ER_DUP_ENTRY") {
+      return next(new HttpException(400, { code: "ALREADY_LIKED" }));
+    }
+    return next(err);
+  }
+  return res.status(204).send("");
+};
+
+const unlike = async (req, res, next) => {
+  let { id } = req.body;
+  let ret = await db.query(
+    "DELETE FROM `goodshop_like` WHERE `goodshop_id`=? AND `user_id`=?",
+    [id, req.id]
+  );
+  if (!ret.affectedRows) {
+    return next(new HttpException(400, { code: "ALREADY_UNLIKED" }));
+  }
+  return res.status(200).send("");
+};
+
 module.exports = {
   find,
+  getLike,
+  like,
+  unlike,
 };

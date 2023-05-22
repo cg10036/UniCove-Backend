@@ -18,11 +18,11 @@ const login = async (req, res, next) => {
 };
 
 const register = async (req, res, next) => {
-  let { name, phone, address, username, password } = req.body;
+  let { name, phone, address, username, password, profile } = req.body;
   try {
     await db.query(
-      "INSERT INTO `user` (`name`, `phone`, `address`, `username`, `password`) VALUES (?, ?, ?, ?, ?)",
-      [name, phone, address, username, await bcrypt.hash(password, 10)]
+      "INSERT INTO `user` (`name`, `phone`, `address`, `username`, `password`, `profile`) VALUES (?, ?, ?, ?, ?, ?)",
+      [name, phone, address, username, await bcrypt.hash(password, 10), profile]
     );
   } catch (err) {
     if (err.code === "ER_DUP_ENTRY") {

@@ -80,10 +80,7 @@ const changePW = async (req, res, next) => {
 
 const getUser = async (req, res, next) => {
   let { queryid } = req.body;
-  let [user] = await db.query(
-    "SELECT `username`, `profile` FROM `user` WHERE `id`=?",
-    [queryid]
-  );
+  let [user] = await db.query("SELECT * FROM `user` WHERE `id`=?", [queryid]);
   return res.send(user);
 };
 

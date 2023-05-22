@@ -79,21 +79,14 @@
 
             json.forEach(e => {
                 let config = {
-                    position: new kakao.maps.LatLng(e.y, e.x),
+                    position: new kakao.maps.LatLng(e.lat, e.lng),
                     clickable: true
                 }
-                let businessInfo = "정보 없음";
-                if (e.businessStatus && e.businessStatus.status) {
-                    let status = e.businessStatus.status
-                    businessInfo = status.detailInfo || status.description || businessInfo;
-                    if (status.code === 8) { // 24시간일때 별모양 마커
-                        config.image = starMarker
-                    }
-                }
+                if(e.is24) config.image = starMarker;
                 let marker = new kakao.maps.Marker(config)
                 marker.setMap(map);
 
-                let iwContent = `<div style="padding:5px;">${[e.display, e.address, businessInfo].join("<br/>")}</div>`,
+                let iwContent = `<div style="padding:5px;">${[e.name, e.address, e.info].join("<br/>")}</div>`,
                     iwRemoveable = true;
 
                 let infowindow = new kakao.maps.InfoWindow({

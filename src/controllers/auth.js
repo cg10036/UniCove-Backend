@@ -41,18 +41,36 @@ const register = async (req, res, next) => {
 
 const changeDB = async (req, res, next) => {
   let allowedVar = ["name", "username", "address", "profile", "phone"];
-  let { varient, new_data } = req.body;
+  // let { varient, new_data } = req.body;
 
-  if (!allowedVar.includes(varient)) {
-    return next(new HttpException(400, { code: "PERMISSION_DENIED_VARIENT" }));
+  // if (!allowedVar.includes(varient)) {
+  //   return next(new HttpException(400, { code: "PERMISSION_DENIED_VARIENT" }));
+  // }
+
+  // try {
+  //   await db.query("UPDATE `user` SET ?? = ? WHERE `id` = ?", [
+  //     varient,
+  //     new_data,
+  //     req.id,
+  //   ]);
+  // } catch (err) {
+  //   return next(err);
+  // }
+
+  let datas = [];
+  for (let i of allowedVar) {
+    if (typeof req.body[i] === "string") {
+      datas.push(i, req.body[i]);
+    }
   }
 
   try {
-    await db.query("UPDATE `user` SET ?? = ? WHERE `id` = ?", [
-      varient,
-      new_data,
-      req.id,
-    ]);
+    await db.query(
+      "UPDATE `user` SET " +
+        Array(keys.length).fill("?? = ?").join(", ") +
+        "WHERE `id`=?",
+      [...datas, req.id]
+    );
   } catch (err) {
     return next(err);
   }

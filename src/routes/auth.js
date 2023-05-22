@@ -11,5 +11,6 @@ router.use(authMiddleware);
 
 router.post("/changeDB", authController.changeDB);
 router.post("/changePW", authController.changePW);
+router.get("/getUser", authController.getUser);
 
 module.exports = router;

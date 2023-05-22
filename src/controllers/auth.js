@@ -67,7 +67,9 @@ const changeDB = async (req, res, next) => {
   try {
     await db.query(
       "UPDATE `user` SET " +
-        Array(keys.length).fill("?? = ?").join(", ") +
+        Array(datas.length / 2)
+          .fill("?? = ?")
+          .join(", ") +
         "WHERE `id`=?",
       [...datas, req.id]
     );

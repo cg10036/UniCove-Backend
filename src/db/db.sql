@@ -81,7 +81,9 @@ CREATE TABLE `nightstudy` (
     `lat` DECIMAL(15, 10),
     `lng` DECIMAL(15, 10),
     `is24` TINYINT NOT NULL,
-    `info` VARCHAR(1000)
+    `info` VARCHAR(1000),
+    `img` TEXT,
+    `menu` TEXT
 );
 
 DROP TABLE IF EXISTS `goodshop_review`;

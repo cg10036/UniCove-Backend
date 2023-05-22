@@ -29,6 +29,8 @@ const find = async (req, res, next) => {
       y: lat,
       x: lng,
       businessStatus,
+      thumUrl: img,
+      menuInfo: menu,
     }) => {
       let status = businessStatus?.status;
       let businessHours = businessStatus?.businessHours || null;
@@ -50,32 +52,40 @@ const find = async (req, res, next) => {
         lng: Number(lng),
         is24: status?.code === 8,
         info: businessHours,
+        img,
+        menu,
       };
     }
   );
 
-  result.forEach(async ({ id, name, address, phone, lat, lng, is24, info }) => {
-    await db.query(
-      "INSERT INTO nightstudy (`id`, `name`, `address`, `phone`, `lat`, `lng`, `is24`, `info`) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `name`=?, `address`=?, `phone`=?, `lat`=?, `lng`=?, `is24`=?, `info`=?",
-      [
-        id,
-        name,
-        address,
-        phone,
-        lat,
-        lng,
-        is24,
-        info,
-        name,
-        address,
-        phone,
-        lat,
-        lng,
-        is24,
-        info,
-      ]
-    );
-  });
+  result.forEach(
+    async ({ id, name, address, phone, lat, lng, is24, info, img, menu }) => {
+      await db.query(
+        "INSERT INTO nightstudy (`id`, `name`, `address`, `phone`, `lat`, `lng`, `is24`, `info`, `img`, `menu`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `name`=?, `address`=?, `phone`=?, `lat`=?, `lng`=?, `is24`=?, `info`=?, `img`=?, `menu`=?",
+        [
+          id,
+          name,
+          address,
+          phone,
+          lat,
+          lng,
+          is24,
+          info,
+          img,
+          menu,
+          name,
+          address,
+          phone,
+          lat,
+          lng,
+          is24,
+          info,
+          img,
+          menu,
+        ]
+      );
+    }
+  );
 
   if (only24) {
     result = result.filter((e) => e.is24);
@@ -94,7 +104,7 @@ const getLike = async (req, res, next) => {
       await Promise.all(
         ret.map(async ({ id }) => {
           let ret = await db.query(
-            "SELECT `id`, `name`, `address`, `phone`, `lat`, `lng` FROM nightstudy WHERE id=?",
+            "SELECT `id`, `name`, `address`, `phone`, `lat`, `lng`, `is24`, `info`, `img`, `menu` FROM nightstudy WHERE id=?",
             [id]
           );
           return ret[0];

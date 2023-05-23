@@ -95,23 +95,11 @@ const find = async (req, res, next) => {
 };
 
 const getLike = async (req, res, next) => {
-  let ret = await db.query(
-    "SELECT `nightstudy_id` AS `id` FROM `nightstudy_like` WHERE `user_id`=?",
+  let data = await db.query(
+    "SELECT `nightstudy`.`id`, `name`, `address`, `phone`, `lat`, `lng`, `is24`, `info`, `img`, `menu` FROM `nightstudy_like` LEFT JOIN `nightstudy` ON `nightstudy_like`.`nightstudy_id`=`nightstudy`.`id` WHERE `nightstudy`.`id` IS NOT NULL AND `user_id`=?",
     [req.id]
   );
-  return res.json(
-    (
-      await Promise.all(
-        ret.map(async ({ id }) => {
-          let ret = await db.query(
-            "SELECT `id`, `name`, `address`, `phone`, `lat`, `lng`, `is24`, `info`, `img`, `menu` FROM nightstudy WHERE id=?",
-            [id]
-          );
-          return ret[0];
-        })
-      )
-    ).filter((e) => e)
-  );
+  return res.json(data);
 };
 
 const like = async (req, res, next) => {

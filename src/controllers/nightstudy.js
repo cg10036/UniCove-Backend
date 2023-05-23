@@ -95,23 +95,11 @@ const find = async (req, res, next) => {
 };
 
 const getLike = async (req, res, next) => {
-  let ret = await db.query(
-    "SELECT `nightstudy_id` AS `id` FROM `nightstudy_like` WHERE `user_id`=?",
+  let data = await db.query(
+    "SELECT `nightstudy`.`id`, `name`, `address`, `phone`, `lat`, `lng`, `is24`, `info`, `img`, `menu` FROM `nightstudy_like` LEFT JOIN `nightstudy` ON `nightstudy_like`.`nightstudy_id`=`nightstudy`.`id` WHERE `nightstudy`.`id` IS NOT NULL AND `user_id`=?",
     [req.id]
   );
-  return res.json(
-    (
-      await Promise.all(
-        ret.map(async ({ id }) => {
-          let ret = await db.query(
-            "SELECT `id`, `name`, `address`, `phone`, `lat`, `lng`, `is24`, `info`, `img`, `menu` FROM nightstudy WHERE id=?",
-            [id]
-          );
-          return ret[0];
-        })
-      )
-    ).filter((e) => e)
-  );
+  return res.json(data);
 };
 
 const like = async (req, res, next) => {
@@ -142,9 +130,63 @@ const unlike = async (req, res, next) => {
   return res.status(200).send("");
 };
 
+const getReviews = async (req, res, next) => {
+  let { id } = req.query;
+  if (!id) {
+    return next(new HttpException(400, { code: "BAD_ID" }));
+  }
+  let [{ score }] = await db.query(
+    "SELECT ROUND(AVG(`score`), 1) as `score` FROM `nightstudy_review` WHERE `nightstudy_id`=?",
+    [id]
+  );
+  let reviews = await db.query(
+    "SELECT `user_id`, `name`, `profile`, `score`, `created_time` AS `createdTime`, `content` FROM `nightstudy_review` LEFT JOIN `user` ON `user`.`id`=`nightstudy_review`.`user_id` WHERE `nightstudy_id`=?",
+    [id]
+  );
+  res.send({ score, reviews });
+};
+
+const addReview = async (req, res, next) => {
+  let { id, score, content } = req.body;
+  if (Number.parseInt(score) !== score || score < 1 || score > 5) {
+    return next(new HttpException(400, { code: "WRONG_SCORE" }));
+  }
+  try {
+    await db.query(
+      "INSERT INTO `nightstudy_review` (`nightstudy_id`, `user_id`, `score`, `content`) VALUES (?, ?, ?, ?)",
+      [id, req.id, score, content]
+    );
+  } catch (err) {
+    if (err.code === "ER_DUP_ENTRY") {
+      return next(new HttpException(400, { code: "ALREADY_REVIEWED" }));
+    }
+    return next(err);
+  }
+  return res.status(204).send("");
+};
+
+const delReview = async (req, res, next) => {
+  let { id } = req.body;
+  try {
+    await db.query(
+      "DELETE FROM `nightstudy_review` WHERE `nightstudy_id`=? AND `user_id`=?",
+      [id, req.id]
+    );
+  } catch (err) {
+    if (ret.affectedRows == 0) {
+      return next(new HttpException(400, { code: "ALREADY_DELETED" }));
+    }
+    return next(err);
+  }
+  return res.status(200).send("");
+};
+
 module.exports = {
   find,
   getLike,
   like,
   unlike,
+  getReviews,
+  addReview,
+  delReview,
 };

@@ -144,6 +144,9 @@ const unlike = async (req, res, next) => {
 
 const addReview = async (req, res, next) => {
   let { id, score, content } = req.body;
+  if (Number.parseInt(score) !== score || score < 1 || score > 5) {
+    return next(new HttpException(400, { code: "WRONG_SCORE" }));
+  }
   try {
     await db.query(
       "INSERT INTO `nightstudy_review` (`nightstudy_id`, `user_id`, `score`, `content`) VALUES (?, ?, ?, ?)",

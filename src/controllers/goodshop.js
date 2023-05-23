@@ -84,6 +84,22 @@ const unlike = async (req, res, next) => {
   return res.status(200).send("");
 };
 
+const getReviews = async (req, res, next) => {
+  let { id } = req.query;
+  if (!id) {
+    return next(new HttpException(400, { code: "BAD_ID" }));
+  }
+  let [{ score }] = await db.query(
+    "SELECT ROUND(AVG(`score`), 1) as `score` FROM `goodshop_review` WHERE `goodshop_id`=?",
+    [id]
+  );
+  let reviews = await db.query(
+    "SELECT `user_id`, `name`, `profile`, `score`, `created_time` AS `createdTime`, `content` FROM `goodshop_review` LEFT JOIN `user` ON `user`.`id`=`goodshop_review`.`user_id` WHERE `goodshop_id`=?",
+    [id]
+  );
+  res.send({ score, reviews });
+};
+
 const addReview = async (req, res, next) => {
   let { id, score, content } = req.body;
   if (Number.parseInt(score) !== score || score < 1 || score > 5) {
@@ -124,6 +140,7 @@ module.exports = {
   getLike,
   like,
   unlike,
+  getReviews,
   addReview,
   delReview,
 };

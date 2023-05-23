@@ -7,5 +7,7 @@ router.post("/", nightstudyController.find);
 router.get("/like", nightstudyController.getLike);
 router.post("/like", nightstudyController.like);
 router.delete("/like", nightstudyController.unlike);
+router.post("/review", nightstudyController.addReview);
+router.delete("/review", nightstudyController.delReview);
 
 module.exports = router;

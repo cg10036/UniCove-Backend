@@ -84,9 +84,43 @@ const unlike = async (req, res, next) => {
   return res.status(200).send("");
 };
 
+const addReview = async (req, res, next) => {
+  let { id, score, content } = req.body;
+  try {
+    await db.query(
+      "INSERT INTO `goodshop_review` (`goodshop_id`, `user_id`, `score`, `content`) VALUES (?, ?, ?, ?)",
+      [id, req.id, score, content]
+    );
+  } catch (err) {
+    if (err.code === "ER_DUP_ENTRY") {
+      return next(new HttpException(400, { code: "ALREADY_REVIEWED" }));
+    }
+    return next(err);
+  }
+  return res.status(204).send("");
+};
+
+const delReview = async (req, res, next) => {
+  let { id } = req.body;
+  try {
+    await db.query(
+      "DELETE FROM `goodshop_review` WHERE `goodshop_id`=? AND `user_id`=?",
+      [id, req.id]
+    );
+  } catch (err) {
+    if (ret.affectedRows == 0) {
+      return next(new HttpException(400, { code: "ALREADY_DELETED" }));
+    }
+    return next(err);
+  }
+  return res.status(200).send("");
+};
+
 module.exports = {
   find,
   getLike,
   like,
   unlike,
+  addReview,
+  delReview,
 };

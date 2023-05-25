@@ -2,6 +2,7 @@ const db = require("../db");
 
 const list = async (req, res, next) => {
   let { page } = req.body; // page : 0-based idx
+  if (!page) page = 0;
   let cnt = 5;
   let board = await db.query(
     "SELECT `id`, `title`, `content` FROM `board` ORDER BY `id` desc limit ?, ?",
@@ -25,6 +26,7 @@ const list = async (req, res, next) => {
 
 const search = async (req, res, next) => {
   let { query, page } = req.body; // page : 0-based idx
+  if (!page) page = 0;
   let cnt = 5;
   let board = await db.query(
     "SELECT `id`, `title`, `content` FROM `board` WHERE `title` LIKE ? ORDER BY `id` desc limit ?, ?",

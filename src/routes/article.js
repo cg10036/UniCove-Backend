@@ -7,7 +7,7 @@ router.post("/comment", articleController.comment);
 router.post("/comment_del", articleController.comment_del);
 router.post("/like", articleController.like);
 router.post("/unlike", articleController.unlike);
-router.get("/read", articleController.read);
+router.post("/read", articleController.read);
 router.post("/del", articleController.del);
 
 module.exports = router;

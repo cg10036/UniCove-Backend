@@ -1,14 +1,17 @@
 const db = require("../db");
 
 const list = async (req, res, next) => {
-  let { page } = req.body; // page : 0-based idx
-  if (!page) page = 0;
-  let cnt = 5;
-  let board = await db.query(
-    "SELECT `id`, `title`, `content`, `created_time` FROM `board` ORDER BY `id` desc limit ?, ?",
-    [Number(page) * cnt, Number(cnt)]
+  let { page } = req.query; // page : 0-based idx
+  if (!page) page = 1;
+
+  let [num] = await db.query(
+    "SELECT FLOOR((COUNT(*)-1)/10)+1 AS `cnt_article` FROM `board`"
   );
-  let ret = await Promise.all(
+  let board = await db.query(
+    "SELECT `id`, `title`, `content`, `created_time` FROM `board` ORDER BY `id` desc limit ?, 10",
+    [(Number(page) - 1) * 10]
+  );
+  let list = await Promise.all(
     board.map(async (elem) => {
       let [comment] = await db.query(
         "SELECT COUNT(*) as cnt_comment FROM `comment` WHERE `boardid` = ?",
@@ -21,18 +24,21 @@ const list = async (req, res, next) => {
       return { ...elem, ...comment, ...like };
     })
   );
-  return res.send(ret);
+  return res.send({ ...num, list });
 };
 
 const search = async (req, res, next) => {
-  let { query, page } = req.body; // page : 0-based idx
-  if (!page) page = 0;
-  let cnt = 5;
-  let board = await db.query(
-    "SELECT `id`, `title`, `content`, `created_time` FROM `board` WHERE `title` LIKE ? ORDER BY `id` desc limit ?, ?",
-    ["%" + query + "%", Number(page) * cnt, Number(cnt)]
+  let { query, page } = req.query; // page : 0-based idx
+  if (!page) page = 1;
+  let [num] = await db.query(
+    "SELECT FLOOR((COUNT(*)-1)/10)+1 AS `cnt_article` FROM `board` WHERE `title` LIKE ?",
+    ["%" + query + "%"]
   );
-  let ret = await Promise.all(
+  let board = await db.query(
+    "SELECT `id`, `title`, `content`, `created_time` FROM `board` WHERE `title` LIKE ? ORDER BY `id` desc limit ?, 10",
+    ["%" + query + "%", (Number(page) - 1) * 10]
+  );
+  let list = await Promise.all(
     board.map(async (elem) => {
       let [comment] = await db.query(
         "SELECT COUNT(*) as cnt_comment FROM `comment` WHERE `boardid` = ?",
@@ -45,7 +51,7 @@ const search = async (req, res, next) => {
       return { ...elem, ...comment, ...like };
     })
   );
-  return res.send(ret);
+  return res.send({ ...num, list });
 };
 
 const write = async (req, res, next) => {
@@ -64,7 +70,7 @@ const write = async (req, res, next) => {
 };
 
 const getUser = async (req, res, next) => {
-  let { queryid } = req.body;
+  let { queryid } = req.query;
   let [user] = await db.query(
     "SELECT `username`, `profile` FROM `user` WHERE `id`=?",
     [queryid]

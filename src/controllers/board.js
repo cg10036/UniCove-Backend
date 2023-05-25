@@ -5,7 +5,7 @@ const list = async (req, res, next) => {
   if (!page) page = 0;
   let cnt = 5;
   let board = await db.query(
-    "SELECT `id`, `title`, `content` FROM `board` ORDER BY `id` desc limit ?, ?",
+    "SELECT `id`, `title`, `content`, `created_time` FROM `board` ORDER BY `id` desc limit ?, ?",
     [Number(page) * cnt, Number(cnt)]
   );
   let ret = await Promise.all(
@@ -29,7 +29,7 @@ const search = async (req, res, next) => {
   if (!page) page = 0;
   let cnt = 5;
   let board = await db.query(
-    "SELECT `id`, `title`, `content` FROM `board` WHERE `title` LIKE ? ORDER BY `id` desc limit ?, ?",
+    "SELECT `id`, `title`, `content`, `created_time` FROM `board` WHERE `title` LIKE ? ORDER BY `id` desc limit ?, ?",
     ["%" + query + "%", Number(page) * cnt, Number(cnt)]
   );
   let ret = await Promise.all(

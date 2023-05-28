@@ -87,6 +87,14 @@ const find = async (req, res, next) => {
     }
   );
 
+  for (let i = 0; i < result.length; i++) {
+    let [like] = await db.query(
+      "SELECT `id` FROM `nightstudy_like` WHERE `nightstudy_id`=? AND `user_id`=?",
+      [result[i].id, req.id]
+    );
+    result[i].like = !!like;
+  }
+
   if (only24) {
     result = result.filter((e) => e.is24);
   }
@@ -96,7 +104,7 @@ const find = async (req, res, next) => {
 
 const getLike = async (req, res, next) => {
   let data = await db.query(
-    "SELECT `nightstudy`.`id`, `name`, `address`, `phone`, `lat`, `lng`, `is24`, `info`, `img`, `menu` FROM `nightstudy_like` LEFT JOIN `nightstudy` ON `nightstudy_like`.`nightstudy_id`=`nightstudy`.`id` WHERE `nightstudy`.`id` IS NOT NULL AND `user_id`=?",
+    "SELECT `nightstudy`.`id`, `name`, `address`, `phone`, `lat`, `lng`, `is24`, `info`, `img`, `menu`, '1' AS `like` FROM `nightstudy_like` LEFT JOIN `nightstudy` ON `nightstudy_like`.`nightstudy_id`=`nightstudy`.`id` WHERE `nightstudy`.`id` IS NOT NULL AND `user_id`=?",
     [req.id]
   );
   return res.json(data);

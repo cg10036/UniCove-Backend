@@ -60,11 +60,12 @@ const read = async (req, res, next) => {
     boardid,
   ]);
 
-  if (content.userid == req.id) {
-    content.is_me = true;
-  } else {
-    content.is_me = false;
-  }
+  content.is_me = !!(content.userid == req.id);
+
+  let islike = await db.query(
+    "SELECT * FROM `like` WHERE `boardid` = ? AND `userid` = ?",
+    [boardid, req.id]
+  );
 
   let comment = await db.query("SELECT * FROM `comment` WHERE `boardid` = ?", [
     boardid,
@@ -72,12 +73,7 @@ const read = async (req, res, next) => {
 
   comment = await Promise.all(
     comment.map(async (elem) => {
-      let is_me;
-      if (elem.userid == req.id) {
-        is_me = true;
-      } else {
-        is_me = false;
-      }
+      let is_me = !!(elem.userid == req.id);
       return { ...elem, is_me };
     })
   );
@@ -87,7 +83,12 @@ const read = async (req, res, next) => {
     [boardid]
   );
 
-  content = { ...content, cnt_comment: comment.length, ...like };
+  content = {
+    ...content,
+    is_like: !!islike.length,
+    cnt_comment: comment.length,
+    ...like,
+  };
   return res.send({ content, comment });
 };
 

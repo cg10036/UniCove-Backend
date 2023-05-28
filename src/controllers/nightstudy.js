@@ -138,6 +138,32 @@ const unlike = async (req, res, next) => {
   return res.status(200).send("");
 };
 
+const toggleLike = async (req, res, next) => {
+  let { id } = req.body;
+  let [like] = await db.query(
+    "SELECT `id` FROM `nightstudy_like` WHERE `nightstudy_id`=? AND `user_id`=?",
+    [id, req.id]
+  );
+  if (like) {
+    await db.query(
+      "DELETE FROM `nightstudy_like` WHERE `nightstudy_id`=? AND `user_id`=?",
+      [id, req.id]
+    );
+  } else {
+    try {
+      await db.query(
+        "INSERT INTO `nightstudy_like` (`nightstudy_id`, `user_id`) values (?, ?)",
+        [id, req.id]
+      );
+    } catch (err) {
+      if (err.code !== "ER_DUP_ENTRY") {
+        return next(err);
+      }
+    }
+  }
+  return res.json({ like: !like });
+};
+
 const getReviews = async (req, res, next) => {
   let { id } = req.query;
   if (!id) {
@@ -194,6 +220,7 @@ module.exports = {
   getLike,
   like,
   unlike,
+  toggleLike,
   getReviews,
   addReview,
   delReview,

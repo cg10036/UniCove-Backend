@@ -59,9 +59,28 @@ const read = async (req, res, next) => {
   let [content] = await db.query("SELECT * FROM `board` WHERE `id` = ?", [
     boardid,
   ]);
+
+  if (content.userid == req.id) {
+    content.is_me = true;
+  } else {
+    content.is_me = false;
+  }
+
   let comment = await db.query("SELECT * FROM `comment` WHERE `boardid` = ?", [
     boardid,
   ]);
+
+  comment = await Promise.all(
+    comment.map(async (elem) => {
+      let is_me;
+      if (elem.userid == req.id) {
+        is_me = true;
+      } else {
+        is_me = false;
+      }
+      return { ...elem, is_me };
+    })
+  );
 
   let [like] = await db.query(
     "SELECT COUNT(*) as cnt_like FROM `like` WHERE `boardid` = ?",

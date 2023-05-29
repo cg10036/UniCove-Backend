@@ -7,6 +7,7 @@ router.post("/", goodshopController.find);
 router.get("/like", goodshopController.getLike);
 router.post("/like", goodshopController.like);
 router.delete("/like", goodshopController.unlike);
+router.post("/like/toggle", goodshopController.toggleLike);
 router.get("/review", goodshopController.getReviews);
 router.post("/review", goodshopController.addReview);
 router.delete("/review", goodshopController.delReview);

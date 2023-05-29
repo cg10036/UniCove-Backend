@@ -14,7 +14,7 @@ const login = async (req, res, next) => {
   }
 
   let token = `Bearer ${genToken(user.id)}`;
-  return res.json({ token }); // jwt
+  return res.json({ token, id: user.id }); // jwt
 };
 
 const register = async (req, res, next) => {
@@ -36,7 +36,7 @@ const register = async (req, res, next) => {
   ]);
 
   let token = `Bearer ${genToken(user.id)}`;
-  return res.json({ token }); // jwt
+  return res.json({ token, id: user.id }); // jwt
 };
 
 const changeDB = async (req, res, next) => {

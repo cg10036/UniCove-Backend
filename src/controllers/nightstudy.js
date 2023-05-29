@@ -185,17 +185,10 @@ const addReview = async (req, res, next) => {
   if (Number.parseInt(score) !== score || score < 1 || score > 5) {
     return next(new HttpException(400, { code: "WRONG_SCORE" }));
   }
-  try {
-    await db.query(
-      "INSERT INTO `nightstudy_review` (`nightstudy_id`, `user_id`, `score`, `content`) VALUES (?, ?, ?, ?)",
-      [id, req.id, score, content]
-    );
-  } catch (err) {
-    if (err.code === "ER_DUP_ENTRY") {
-      return next(new HttpException(400, { code: "ALREADY_REVIEWED" }));
-    }
-    return next(err);
-  }
+  await db.query(
+    "INSERT INTO `nightstudy_review` (`nightstudy_id`, `user_id`, `score`, `content`) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE `score`=?, `content`=?",
+    [id, req.id, score, content, score, content]
+  );
   return res.status(204).send("");
 };
 

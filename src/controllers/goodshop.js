@@ -46,7 +46,7 @@ const find = async (req, res, next) => {
 
 const getLike = async (req, res, next) => {
   let data = await db.query(
-    "SELECT `goodshop`.`id`, `name`, `address`, `phone`, `lat`, `lng`, `is24`, `info`, `img`, `menu`, '1' AS `like` FROM `goodshop_like` LEFT JOIN `goodshop` ON `goodshop_like`.`goodshop_id`=`goodshop`.`id` WHERE `goodshop`.`id` IS NOT NULL AND `user_id`=?",
+    "SELECT `goodshop`.`id`, `name`, `address`, `phone`, `lat`, `lng`, `info`, `img`, `menu`, '1' AS `like` FROM `goodshop_like` LEFT JOIN `goodshop` ON `goodshop_like`.`goodshop_id`=`goodshop`.`id` WHERE `goodshop`.`id` IS NOT NULL AND `user_id`=?",
     [req.id]
   );
   return res.json(data);

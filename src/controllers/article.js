@@ -68,7 +68,7 @@ const read = async (req, res, next) => {
   );
 
   let comment = await db.query(
-    "SELECT `comment`.`id`, `userid`, `boardid`, `content`, `created_time`, `user`.`name`, `user`.`profile` FROM `comment` WHERE `boardid` = ? LEFT JOIN `user` ON `comment`.`userid`=`user`.`id`",
+    "SELECT `comment`.`id`, `userid`, `boardid`, `content`, `created_time`, `user`.`name`, `user`.`profile` FROM `comment` LEFT JOIN `user` ON `comment`.`userid`=`user`.`id` WHERE `boardid` = ?",
     [boardid]
   );
 

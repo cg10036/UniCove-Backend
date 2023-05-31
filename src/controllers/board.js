@@ -72,7 +72,7 @@ const write = async (req, res, next) => {
 const getUser = async (req, res, next) => {
   let { queryid } = req.query;
   let [user] = await db.query(
-    "SELECT `username`, `profile` FROM `user` WHERE `id`=?",
+    "SELECT `name`, `username`, `profile` FROM `user` WHERE `id`=?",
     [queryid]
   );
   return res.send(user);
